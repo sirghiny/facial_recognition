@@ -1,8 +1,7 @@
 from itertools import combinations
 from math import sqrt
-from os import getcwd, listdir, system
+from os import listdir, system
 from pickle import dump, load
-from sys import exit
 
 from cv2 import COLOR_BGR2GRAY, cvtColor, imread, imwrite
 from face_recognition import face_landmarks, face_locations
@@ -73,7 +72,6 @@ def store_image_data():
             }
             image_object['image_url'] = path
             image = imread(path)
-            gray_image = cvtColor(image, COLOR_BGR2GRAY)
             face_loci = get_face_locations(path)
             if len(face_loci) == 0:
                 image_object['missing'].extend(['location', 'landmarks'])
@@ -180,7 +178,8 @@ def store_cropped_faces():
         for i in face_data:
             image = imread(i['image_url'])
             top, right, bottom, left = i['location'][0]
-            face_image = image[top:bottom, left:right]
+            face_image = cvtColor(
+                image[top:bottom, left:right], COLOR_BGR2GRAY)
             new_path = 'data/cropped/' + face + '/' + str(i_count) + '.jpg'
             i_count = i_count + 1
             imwrite(new_path, face_image)
