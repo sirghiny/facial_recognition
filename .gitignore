@@ -1,0 +1,10 @@
+__pycache__/
+archive/
+venv/
+data/cropped/
+to_do.txt
+distances.pkl
+face_locations.pkl
+image_data.pkl
+paths.pkl
+paths_with_landmarks.pkl
