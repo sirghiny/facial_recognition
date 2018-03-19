@@ -8,3 +8,4 @@ face_locations.pkl
 image_data.pkl
 paths.pkl
 paths_with_landmarks.pkl
+view_data.py
