@@ -2,6 +2,7 @@ from itertools import combinations
 from math import sqrt
 from os import listdir, system
 from pickle import dump, load
+from sys import exit
 
 from cv2 import COLOR_BGR2GRAY, cvtColor, imread, imwrite, resize
 from face_recognition import face_landmarks, face_locations
