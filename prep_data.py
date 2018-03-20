@@ -3,7 +3,7 @@ from math import sqrt
 from os import listdir, system
 from pickle import dump, load
 
-from cv2 import COLOR_BGR2GRAY, cvtColor, imread, imwrite
+from cv2 import COLOR_BGR2GRAY, cvtColor, imread, imwrite, resize
 from face_recognition import face_landmarks, face_locations
 from tqdm import tqdm
 
@@ -95,6 +95,7 @@ def store_image_data():
 def store_distances():
     """
     Create and store a pickle of distances between landmarks.
+    Only necessary if you wish to experiment with feed-forward networks.
     {Face: [[()...], ...], ...}
     """
     landmarks_ = sorted(
@@ -165,11 +166,46 @@ def store_paths_with_landmarks():
     dump(paths, open('data/paths_with_landmarks.pkl', 'wb'))
 
 
+def adjust_crop(coordinates, image):
+    """
+    Make a cropped image square.
+    To add height increase y2 or reduce y1.
+    To add width increase x2 or reduce x1.
+    Return cropped image adjusted to a square shape.
+    """
+    def get_change(diff):
+        """
+        Get upper and lower extensions to adjust crop.
+        [upper_pixels, lower_pixels]
+        """
+        if diff > 1:
+            upper = int(diff/2)
+            lower = diff - upper
+            return [upper, lower]
+        return [diff, 0]
+
+    y1, x2, y2, x1 = coordinates
+    face_image = cvtColor(image[y1:y2, x1:x2], COLOR_BGR2GRAY)
+    shape = face_image.shape
+    if shape[0] != shape[1]:
+        if shape[0] < shape[1]:
+            h_diff = abs(shape[0] - shape[1])
+            h_change = get_change(h_diff)
+            y1, y2 = (y1 - h_change[1]), (y2 + h_change[0])
+        else:
+            w_diff = abs(shape[0] - shape[1])
+            w_change = get_change(w_diff)
+            x1, x2 = (x1 - w_change[1]), (x2 + w_change[0])
+        adjusted_face_image = cvtColor(image[y1:y2, x1:x2], COLOR_BGR2GRAY)
+        return adjusted_face_image
+    return face_image
+
+
 def store_cropped_faces():
     """
     Crop out and store faces.
     """
-    system('mkdir data/cropped')
+    system('rm -rf data/cropped && mkdir data/cropped')
     paths = load(open('data/face_locations.pkl', 'rb'))
     for face in tqdm(paths):
         face_data = paths[face]
@@ -177,14 +213,13 @@ def store_cropped_faces():
         system('mkdir data/cropped/' + face)
         for i in face_data:
             image = imread(i['image_url'])
-            top, right, bottom, left = i['location'][0]
-            face_image = cvtColor(
-                image[top:bottom, left:right], COLOR_BGR2GRAY)
+            y1, x2, y2, x1 = i['location'][0]
+            face_image = adjust_crop(i['location'][0], image)
+            face_image = resize(face_image, (128, 128))
             new_path = 'data/cropped/' + face + '/' + str(i_count) + '.jpg'
             i_count = i_count + 1
             imwrite(new_path, face_image)
     return True
-
 
 print('\nStoring image paths.')
 store_image_paths()
