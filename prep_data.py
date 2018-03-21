@@ -205,6 +205,8 @@ def adjust_crop(coordinates, image):
 def store_cropped_faces():
     """
     Crop out and store faces.
+    The commands are for Unix-based systems.
+    The cropped images are of shape (128, 128).
     """
     system('rm -rf data/cropped && mkdir data/cropped')
     paths = load(open('data/face_locations.pkl', 'rb'))
@@ -222,6 +224,23 @@ def store_cropped_faces():
             imwrite(new_path, face_image)
     return True
 
+
+def store_faces_with_many_images():
+    """
+    From the cropped images, store face names with more than one image.
+    """
+    faces = [i for i in listdir('data/cropped') if i.startswith('Face')]
+    more_than_one = {}
+    for face in tqdm(faces):
+        face_paths = []
+        images = [i for i in listdir(
+            'data/cropped/' + face) if i.endswith('.jpg')]
+        if len(images) > 1:
+            for i in images:
+                face_paths.append('data/cropped/' + face + '/' + i)
+            more_than_one.update({face: face_paths})
+    dump(more_than_one, open('data/more_than_one.pkl', 'wb'))
+
 print('\nStoring image paths.')
 store_image_paths()
 print('\nStoring image data.')
@@ -234,3 +253,5 @@ print('\nStoring paths with landmarks.')
 store_paths_with_landmarks()
 print('\nStoring cropped faces.')
 store_cropped_faces()
+print('\nStoring faces with more than one image.')
+store_faces_with_many_images()

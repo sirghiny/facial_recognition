@@ -1,6 +1,7 @@
 __pycache__/
 archive/
 venv/
+temp/
 data/cropped/
 to_do.txt
 distances.pkl
@@ -8,5 +9,5 @@ face_locations.pkl
 image_data.pkl
 paths.pkl
 paths_with_landmarks.pkl
-view_data.py
 double.pkl
+more_than_one.pkl
