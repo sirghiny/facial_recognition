@@ -21,3 +21,7 @@ Install all requirements:
 To generate necessary data, run: 
 
 	$ python prep_data.py
+
+To create and train the network, run:
+
+	$ python network.py
